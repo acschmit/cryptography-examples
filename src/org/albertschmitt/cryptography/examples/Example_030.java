@@ -17,8 +17,17 @@ import org.albertschmitt.crypto.AESService;
 import org.albertschmitt.crypto.common.DigestSHA;
 
 /**
+ * Example 030.
+ * <p>
+ * Demonstrate the following techniques:</p>
+ * <ul>
+ * <li>Generate AES Key.</li>
+ * <li>Use AES key to encrypt a file stream directly to another file stream</li>
+ * <li>Decrypt the encrypted file using the same AES key</li>
+ * <li>Compare the decrypted file to the original.</li>
+ * </ul>
  *
- * @author acschmit
+ * @author Albert Schmitt [acschmit] [at] [gmail] [dot] [com]
  */
 public class Example_030
 {

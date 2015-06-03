@@ -25,7 +25,7 @@ import org.albertschmitt.crypto.common.RSAPublicKey;
  * <li>Compare the decrypted file to the original.</li>
  * </ul>
  *
- * @author acschmit
+ * @author Albert Schmitt [acschmit] [at] [gmail] [dot] [com]
  */
 public class Example_010
 {

@@ -17,8 +17,21 @@ import org.albertschmitt.crypto.AESService;
 import org.albertschmitt.crypto.common.DigestSHA;
 
 /**
+ * Example 050.
+ * <p>
+ * Demonstrate the following techniques:</p>
+ * <ul>
+ * <li>Create an AES Key.</li>
+ * <li>Use AES Key to encrypt a string.</li>
+ * <li>Get the AES Key bytes.</li>
+ * <li>Use AES key to encrypt a file stream directly to another file
+ * stream.</li>
+ * <li>Create a new AES Key using the key bytes from before.</li>
+ * <li>Decrypt the encrypted file using the AES key.</li>
+ * <li>Compare the decrypted file to the original.</li>
+ * </ul>
  *
- * @author acschmit
+ * @author Albert Schmitt [acschmit] [at] [gmail] [dot] [com]
  */
 public class Example_050
 {

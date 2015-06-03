@@ -1,10 +1,22 @@
 package org.albertschmitt.cryptography.examples;
 
-
 import java.security.SecureRandom;
 import org.albertschmitt.crypto.AESService;
 import static org.albertschmitt.crypto.AESService.SALT_SIZE;
 
+/**
+ * Example 060.
+ * <p>
+ * Demonstrate the following techniques:</p>
+ * <ul>
+ * <li>Create an AES Key using password and salt.</li>
+ * <li>Use AES Key to encrypt a string.</li>
+ * <li>Decrypt the encrypted string.</li>
+ * <li>Compare the decrypted file to the original.</li>
+ * </ul>
+ *
+ * @author Albert Schmitt [acschmit] [at] [gmail] [dot] [com]
+ */
 public class Example_060
 {
 

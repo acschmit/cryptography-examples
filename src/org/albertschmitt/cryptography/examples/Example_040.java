@@ -23,8 +23,19 @@ import org.albertschmitt.crypto.common.RSAPrivateKey;
 import org.albertschmitt.crypto.common.RSAPublicKey;
 
 /**
+ * Example 040.
+ * <p>
+ * Demonstrate the following techniques:</p>
+ * <ul>
+ * <li>Create a public / private RSA key pair.</li>
+ * <li>Generate an AES key then RSA encrypt it and write it to a file.</li>
+ * <li>Use AES key to encrypt a file stream directly to another file
+ * stream.</li>
+ * <li>Decrypt the encrypted file using the same AES key.</li>
+ * <li>Compare the decrypted file to the original.</li>
+ * </ul>
  *
- * @author acschmit
+ * @author Albert Schmitt [acschmit] [at] [gmail] [dot] [com]
  */
 public class Example_040
 {
