@@ -3,6 +3,7 @@ package org.albertschmitt.cryptography.examples;
 import java.security.SecureRandom;
 import org.albertschmitt.crypto.AESService;
 import static org.albertschmitt.crypto.AESService.SALT_SIZE;
+import org.albertschmitt.crypto.common.Compare;
 
 /**
  * Example 060.
@@ -22,6 +23,7 @@ public class Example_060
 
 	public static void main(String[] args) throws Exception
 	{
+		System.out.println("Begin Example_060.");
 		// Create the AES Service
 		AESService aes = new AESService();
 
@@ -39,7 +41,11 @@ public class Example_060
 		byte[] dec_bytes = aes.decode(enc_bytes);
 		String dec_text = new String(dec_bytes, "UTF-8");
 
-		if (clear_text.equals(dec_text))
+		/**
+		 * Compare the original and decrypted files.
+		 */
+		if (Compare.safeEquals(clear_text.getBytes("UTF-8"), dec_text.getBytes("UTF-8")))
+
 		{
 			System.out.println("Original and Decrypted are the same!");
 		}
@@ -47,5 +53,6 @@ public class Example_060
 		{
 			System.out.println("Original and Decrypted are NOT the same!");
 		}
+		System.out.println("End Example_060.");
 	}
 }
