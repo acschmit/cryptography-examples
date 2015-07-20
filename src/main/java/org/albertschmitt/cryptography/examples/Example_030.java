@@ -1,10 +1,29 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * The MIT License
+ *
+ * Copyright 2015 acschmit.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package org.albertschmitt.cryptography.examples;
 
+import org.albertschmitt.cryptography.support.Support;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import org.albertschmitt.crypto.AESService;
@@ -18,7 +37,7 @@ import org.albertschmitt.crypto.common.DigestSHA;
  * <ul>
  * <li>Generate AES Key.</li>
  * <li>Use AES key to encrypt a file stream directly to another file stream</li>
- * <li>Decrypt the encrypted file using the same AES key</li>
+ * <li>Decrypt the encrypted file using AES key</li>
  * <li>Compare the decrypted file to the original.</li>
  * </ul>
  *
@@ -38,7 +57,7 @@ public class Example_030
 		Support.testData(TESTDATA_FILE);
 
 		/**
-		 * Create a 256-bit AES key. AES keys are synchronous. One key can both
+		 * Create a 256-bit AES key. AES keys are asynchronous. One key can both
 		 * encrypt and decrypt data.
 		 */
 		System.out.println("Begin Create AES Key.");
@@ -50,36 +69,41 @@ public class Example_030
 		 * Use AES key to encrypt a file stream directly to another file stream.
 		 */
 		System.out.println("Begin Encrypt Data.");
-		FileOutputStream outstream = new FileOutputStream(TESTDATA_ENC_FILE);
-		FileInputStream instream = new FileInputStream(TESTDATA_FILE);
-		aes.encode(instream, outstream);
-		instream.close();
-		outstream.close();
+		try (FileOutputStream outstream = new FileOutputStream(TESTDATA_ENC_FILE);
+			 FileInputStream instream = new FileInputStream(TESTDATA_FILE))
+		{
+			aes.encode(instream, outstream);
+		}
 		System.out.println("End Encrypt Data.");
 
 		/**
 		 * Now decrypt the encrypted file using the same AES key.
 		 */
 		System.out.println("Begin Decrypt Data.");
-		outstream = new FileOutputStream(TESTDATA_DEC_FILE);
-		instream = new FileInputStream(TESTDATA_ENC_FILE);
-		aes.decode(instream, outstream);
-		instream.close();
-		outstream.close();
+		try (FileOutputStream outstream = new FileOutputStream(TESTDATA_DEC_FILE);
+			 FileInputStream instream = new FileInputStream(TESTDATA_ENC_FILE))
+		{
+			aes.decode(instream, outstream);
+		}
 		System.out.println("End Decrypt Data.");
 
 		/**
 		 * Compare the original and decrypted files.
 		 */
-		String shaOriginal = DigestSHA.sha256(new FileInputStream(TESTDATA_FILE));
-		String shaDecripted = DigestSHA.sha256(new FileInputStream(TESTDATA_DEC_FILE));
-		if (Compare.safeEquals(shaOriginal.getBytes("UTF-8"), shaDecripted.getBytes("UTF-8")))
+		try (FileInputStream is_original = new FileInputStream(TESTDATA_FILE);
+			 FileInputStream is_decoded = new FileInputStream(TESTDATA_DEC_FILE))
 		{
-			System.out.println("Encrypted and decrypted files are the same.");
-		}
-		else
-		{
-			System.out.println("Encrypted and decrypted files are NOT the same.");
+			String shaOriginal = DigestSHA.sha256(is_original);
+			String shaDecoded = DigestSHA.sha256(is_decoded);
+
+			if (Compare.safeEquals(shaOriginal.getBytes("UTF-8"), shaDecoded.getBytes("UTF-8")))
+			{
+				System.out.println("Encrypted and decrypted files are the same.");
+			}
+			else
+			{
+				System.out.println("Encrypted and decrypted files are NOT the same.");
+			}
 		}
 		System.out.println("End Example_030.");
 	}

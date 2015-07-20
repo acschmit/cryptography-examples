@@ -1,10 +1,29 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * The MIT License
+ *
+ * Copyright 2015 acschmit.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package org.albertschmitt.cryptography.examples;
 
+import org.albertschmitt.cryptography.support.Support;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -62,14 +81,13 @@ public class Example_040
 			 */
 			System.out.println("Begin Create RSA Keys.");
 
-			final ByteArrayOutputStream bos_private = new ByteArrayOutputStream();
-			final FileOutputStream fos_public = new FileOutputStream(publicKeyfile);
-
-			rsa.generateKey(bos_private, fos_public);
-			InputStream bis_private = new ByteArrayInputStream(bos_private.toByteArray());
-
-			bos_private.close();
-			fos_public.close();
+			InputStream bis_private;
+			try (ByteArrayOutputStream bos_private = new ByteArrayOutputStream();
+				 FileOutputStream fos_public = new FileOutputStream(publicKeyfile))
+			{
+				rsa.generateKey(bos_private, fos_public);
+				bis_private = new ByteArrayInputStream(bos_private.toByteArray());
+			}
 
 			System.out.println("End Create RSA Keys.");
 
@@ -128,15 +146,20 @@ public class Example_040
 		/**
 		 * Compare the original and decrypted files.
 		 */
-		String shaOriginal = DigestSHA.sha256(new FileInputStream(TESTDATA_FILE));
-		String shaDecripted = DigestSHA.sha256(new FileInputStream(TESTDATA_DEC_FILE));
-		if (Compare.safeEquals(shaOriginal.getBytes("UTF-8"), shaDecripted.getBytes("UTF-8")))
+		try (FileInputStream is_original = new FileInputStream(TESTDATA_FILE);
+			 FileInputStream is_decoded = new FileInputStream(TESTDATA_DEC_FILE))
 		{
-			System.out.println("Encrypted and decrypted files are the same.");
-		}
-		else
-		{
-			System.out.println("Encrypted and decrypted files are NOT the same.");
+			String shaOriginal = DigestSHA.sha256(is_original);
+			String shaDecoded = DigestSHA.sha256(is_decoded);
+
+			if (Compare.safeEquals(shaOriginal.getBytes("UTF-8"), shaDecoded.getBytes("UTF-8")))
+			{
+				System.out.println("Encrypted and decrypted files are the same.");
+			}
+			else
+			{
+				System.out.println("Encrypted and decrypted files are NOT the same.");
+			}
 		}
 		System.out.println("End Example_040.");
 	}

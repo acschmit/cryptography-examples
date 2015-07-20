@@ -24,50 +24,60 @@
 package org.albertschmitt.cryptography.examples;
 
 import org.albertschmitt.cryptography.support.Support;
-import java.io.File;
 import java.io.FileInputStream;
-import org.albertschmitt.crypto.RSAService;
+import java.io.FileOutputStream;
 import org.albertschmitt.crypto.common.Compare;
 import org.albertschmitt.crypto.common.DigestSHA;
 import org.albertschmitt.crypto.common.RSAPrivateKey;
 import org.albertschmitt.crypto.common.RSAPublicKey;
+import org.albertschmitt.cryptography.support.RSAService4K;
 
 /**
- * Example 020.
+ * Example 015.
  * <p>
  * Demonstrate the following techniques:</p>
  * <ul>
  * <li>Check for existence of RSA Keys.</li>
- * <li>Generate RSA.</li>
- * <li>Read RSA Keys.</li>
- * <li>Encrypt and Decrypt a data file using byte arrays.</li>
+ * <li>Extend the RSAService class to create a class that will perform 4096-bit
+ * encryption.</li>
+ * <li>Generate 4096-bit RSA Keys using a password.</li>
+ * <li>Read RSA Keys using a password.</li>
+ * <li>Encrypt and Decrypt a data file using streams.</li>
  * <li>Compare the decrypted file to the original.</li>
  * </ul>
  *
  * @author Albert Schmitt [acschmit] [at] [gmail] [dot] [com]
  */
-public class Example_020
+public class Example_015
 {
 
-	private static final String TESTDATA_FILE = "./Example_020.txt";
-	private static final String privateKeyfile = "./Example_020_private_key.pem";
-	private static final String publicKeyfile = "./Example_020_public_key.pem";
+	private static final String TESTDATA_DEC_FILE = "./Example_010a.dec.txt";
+	private static final String TESTDATA_ENC_FILE = "./Example_010a.enc.txt";
+	private static final String TESTDATA_FILE = "./Example_010a.txt";
+	private static final String privateKeyfile = "./Example_010a_private_key.pem";
+	private static final String publicKeyfile = "./Example_010a_public_key.pem";
 
 	public static void main(String[] args) throws Exception
 	{
-		System.out.println("Begin Example_020.");
+		System.out.println("Begin Example_015.");
 		// Create some data to test with.
 		Support.testData(TESTDATA_FILE);
 
 		/**
-		 * Create a public / private RS key pair.
+		 * Get password input from user. Char array to prevent memory hacking.
 		 */
-		final RSAService rsa = new RSAService();
+		char[] charPassword = new char[]
+		{
+			'p', 'a', 's', 's', 'w', 'o', 'r', 'd'
+		};
+
+		/**
+		 * Create a public / private RSA key pair.
+		 */
+		final RSAService4K rsa = new RSAService4K();
 		if (!rsa.areKeysPresent(privateKeyfile, publicKeyfile))
 		{
-			System.out.println("Begin Create RSA Keys.");
-			rsa.generateKey(privateKeyfile, publicKeyfile);
-			System.out.println("End Create RSA Keys.");
+			rsa.generateKey(privateKeyfile, publicKeyfile, charPassword);
 		}
 
 		/**
@@ -77,56 +87,60 @@ public class Example_020
 		 * purposes.
 		 */
 		System.out.println("Begin Read RSA Keys.");
-		RSAPrivateKey privateKey = rsa.readPrivateKey(privateKeyfile);
+		RSAPrivateKey privateKey = rsa.readPrivateKey(privateKeyfile, charPassword);
 		RSAPublicKey publicKey = rsa.readPublicKey(publicKeyfile);
 		System.out.println("End Read RSA Keys.");
 
 		/**
-		 * Read the test data into a byte array. Be sure to use UTF-8 when
-		 * converting between strings and byte arrays.
+		 * Erase password to prevent memory hacking.
 		 */
-		System.out.println("Begin Read Data.");
-		File file = new File(TESTDATA_FILE);
-		StringBuilder sb;
-		try (FileInputStream instream = new FileInputStream(file))
+		for (int i = 0; i < charPassword.length; i++)
 		{
-			sb = new StringBuilder();
-			int ch;
-			while ((ch = instream.read()) != -1)
-			{
-				sb.append(ch);
-			}
+			charPassword[i] = ' ';
 		}
-		byte[] testdata_bytes = sb.toString().getBytes("UTF-8");
-		System.out.println("End Read Data.");
 
 		/**
-		 * Use public key to encrypt a byte array to another byte array.
+		 * Use public key to encrypt a file stream directly to another file
+		 * stream.
 		 */
 		System.out.println("Begin Encrypt Data.");
-		byte[] testdata_enc = rsa.encode(testdata_bytes, publicKey);
+		try (FileOutputStream outstream = new FileOutputStream(TESTDATA_ENC_FILE);
+			 FileInputStream instream = new FileInputStream(TESTDATA_FILE))
+		{
+			rsa.encode(instream, outstream, publicKey);
+		}
 		System.out.println("End Encrypt Data.");
 
 		/**
 		 * Now decrypt the encrypted file using the private key.
 		 */
 		System.out.println("Begin Decrypt Data.");
-		byte[] testdata_dec = rsa.decode(testdata_enc, privateKey);
+		try (FileOutputStream outstream = new FileOutputStream(TESTDATA_DEC_FILE);
+			 FileInputStream instream = new FileInputStream(TESTDATA_ENC_FILE))
+		{
+			rsa.decode(instream, outstream, privateKey);
+
+		}
 		System.out.println("End Decrypt Data.");
 
 		/**
 		 * Compare the original and decrypted files.
 		 */
-		String shaOriginal = DigestSHA.sha256(testdata_bytes);
-		String shaDecripted = DigestSHA.sha256(testdata_dec);
-		if (Compare.safeEquals(shaOriginal.getBytes("UTF-8"), shaDecripted.getBytes("UTF-8")))
+		try (FileInputStream is_original = new FileInputStream(TESTDATA_FILE);
+			 FileInputStream is_decoded = new FileInputStream(TESTDATA_DEC_FILE))
 		{
-			System.out.println("Encrypted and decrypted files are the same.");
+			String shaOriginal = DigestSHA.sha256(is_original);
+			String shaDecoded = DigestSHA.sha256(is_decoded);
+
+			if (Compare.safeEquals(shaOriginal.getBytes("UTF-8"), shaDecoded.getBytes("UTF-8")))
+			{
+				System.out.println("Encrypted and decrypted files are the same.");
+			}
+			else
+			{
+				System.out.println("Encrypted and decrypted files are NOT the same.");
+			}
 		}
-		else
-		{
-			System.out.println("Encrypted and decrypted files are NOT the same.");
-		}
-		System.out.println("End Example_020.");
+		System.out.println("End Example_015.");
 	}
 }
