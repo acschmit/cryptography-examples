@@ -8,7 +8,7 @@
 
 	<groupId>org.albertschmitt</groupId>
 	<artifactId>cryptography-examples</artifactId>
-	<version>1.0.7-SNAPSHOT</version>
+	<version>1.0.7</version>
 	<packaging>jar</packaging>
 
 	<name>${project.artifactId}-${project.version}.${project.packaging}</name>
@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>cryptography</artifactId>
-			<version>${project.version}</version>
+			<version>1.0.7</version>
 		</dependency>
 	</dependencies>
 	<properties>
